@@ -889,6 +889,16 @@ function purifyCode(ast) {
     end = true
     traverse(ast, { BinaryExpression: combineString })
   }
+  const strToUnicode = {
+    StringLiteral({ node }) {
+      let value = node.value;
+      if (node.extra && (/\\[ux]/gi.test(node.extra.raw) == true)) {
+        value = unescape(value);
+        node.extra.raw = '"' + value + '"';
+      }
+    },
+  }
+  traverse(ast, strToUnicode)
   // 替换索引器
   function FormatMember(path) {
     // _0x19882c['removeCookie']['toString']()
@@ -1006,7 +1016,8 @@ module.exports = function (code) {
   )
   console.log('提高代码可读性...')
   purifyCode(ast)
-  ast = parse(generator(ast, { comments: false }).code)
+  
+  // ast = parse(generator(ast, { comments: false }).code)
   console.log('解除环境限制...')
   unlockEnv(ast)
   console.log('净化完成')

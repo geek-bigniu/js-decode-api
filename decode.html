@@ -1,0 +1,110 @@
+<form method="post" action="javascript:;">
+	<p>输入你的加密代码：</p>
+	<div class="row">
+		<div class="col-md-12">
+			<textarea id="jscode" class="form-control form-control-alternative" placeholder="加密后的代码" name="comment"
+				style="height: 200px;"></textarea>
+		</div>
+
+	</div>
+	<p>解密结果</p>
+	<div>
+
+	</div>
+	<div id="result">
+		<span>请先提交加密代码后查看</span>
+	</div>
+	<button class="btn btn-icon btn-primary comment-btn pull-left ml-0" type="button" id="code_submit"><span
+			class="btn-inner--icon hide-on-comment-editing"><i class="fa fa-send"></i></span><span
+			class="btn-inner--text hide-on-comment-editing" style="margin-right: 0;">提交</span>
+	</button>
+</form>
+<script type='text/javascript'>
+	var jscode = ""
+	var code_submit = ""
+	const code_e = $("#jscode")
+
+	const result_e = $("#result")
+	$(function () {
+		function decode(code) {
+			let childrens = result_e.children()
+			if (childrens.length > 0) {
+				$(childrens[0]).remove()
+			}
+			$.ajax({
+				type: 'POST',
+				url: "/decode/v7",
+				dataType: "json",
+				data: {
+					code: code
+				},
+				success: function (result) {
+					if (result.code == 0) {
+						iziToast.show({
+							title: "解密失败",
+							message: result.msg,
+							class: 'shadow-sm',
+							position: 'topRight',
+							backgroundColor: '#f5365c',
+							titleColor: '#ffffff',
+							messageColor: '#ffffff',
+							iconColor: '#ffffff',
+							progressBarColor: '#ffffff',
+							icon: 'fa fa-close',
+							timeout: 5000
+						});
+						return
+					}
+					iziToast.show({
+						title: "解密成功",
+						message: "请复制代码框内的数据",
+						class: 'shadow-sm',
+						position: 'topRight',
+						backgroundColor: '#2dce89',
+						titleColor: '#ffffff',
+						messageColor: '#ffffff',
+						iconColor: '#ffffff',
+						progressBarColor: '#ffffff',
+						icon: 'fa fa-close',
+						timeout: 5000
+					});
+					// 创建代码块元素
+					var codeBlock = $('<pre><code class="language-js"></code></pre>');
+					// 转义代码以避免 HTML 注入
+					codeBlock.find('code').text(result.data);
+					result_e.append(codeBlock)
+					highlightJsRender()
+				}
+			});
+		}
+
+		function submit() {
+			let error = ""
+			jscode = code_e.val();
+			if (jscode == "") {
+				error = "输入内容不能为空";
+			}
+			if (error == "" && jscode.length < 20) {
+				error = "输入内容过短，非加密后的内容";
+			}
+			if (error != "") {
+				iziToast.show({
+					title: __("评论格式错误"),
+					message: error,
+					class: 'shadow-sm',
+					position: 'topRight',
+					backgroundColor: '#f5365c',
+					titleColor: '#ffffff',
+					messageColor: '#ffffff',
+					iconColor: '#ffffff',
+					progressBarColor: '#ffffff',
+					icon: 'fa fa-close',
+					timeout: 5000
+				});
+				return
+			}
+			decode(jscode.trim())
+		}
+		$("#code_submit")[0].onclick = submit
+	})
+</script>
