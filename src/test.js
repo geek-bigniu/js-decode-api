@@ -15,7 +15,7 @@ const sourceCode = fs.readFileSync(encodeFile, { encoding: 'utf-8' })
 
 // 净化源代码
 let code
-  code = PluginSojson(sourceCode)
+  code = PluginSojsonV7(sourceCode)
 
 // 输出代码
 if (code) {

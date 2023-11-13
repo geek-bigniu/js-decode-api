@@ -40,8 +40,10 @@ function processDecodeRequest(req, res, Plugin) {
   try {
     console.log('request come', req.body.code);
     const sourceCode = req.body.code;
-    const decodedCode = Plugin(sourceCode); // 确保你的插件有.decode方法
-
+    const decodedCode = Plugin(sourceCode); 
+    if (!decodedCode) {
+      throw new Error("解码失败");
+    }
     res.status(200).json({
       code: 1,
       msg: "success",
@@ -51,7 +53,7 @@ function processDecodeRequest(req, res, Plugin) {
     console.error(e);
     res.status(500).json({
       code: 0,
-      msg: "系统错误:" + e.message
+      msg: e.message
     });
   }
 }
